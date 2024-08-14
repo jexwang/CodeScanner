@@ -8,6 +8,7 @@
 
 #if os(iOS)
 import AVFoundation
+import CoreFoundation
 import SwiftUI
 
 /// An enum describing the ways CodeScannerView can hit scanning problems.
@@ -82,6 +83,7 @@ public struct CodeScannerView: UIViewControllerRepresentable {
     public let manualSelect: Bool
     public let scanInterval: Double
     public let showViewfinder: Bool
+    public let viewfinderFrame: CGRect?
     public let requiresPhotoOutput: Bool
     public var simulatedData = ""
     public var shouldVibrateOnSuccess: Bool
@@ -97,6 +99,7 @@ public struct CodeScannerView: UIViewControllerRepresentable {
         manualSelect: Bool = false,
         scanInterval: Double = 2.0,
         showViewfinder: Bool = false,
+        viewfinderFrame: CGRect? = nil,
         requiresPhotoOutput: Bool = true,
         simulatedData: String = "",
         shouldVibrateOnSuccess: Bool = true,
@@ -110,6 +113,7 @@ public struct CodeScannerView: UIViewControllerRepresentable {
         self.scanMode = scanMode
         self.manualSelect = manualSelect
         self.showViewfinder = showViewfinder
+        self.viewfinderFrame = viewfinderFrame
         self.requiresPhotoOutput = requiresPhotoOutput
         self.scanInterval = scanInterval
         self.simulatedData = simulatedData
@@ -131,7 +135,8 @@ public struct CodeScannerView: UIViewControllerRepresentable {
             isTorchOn: isTorchOn,
             isGalleryPresented: isGalleryPresented.wrappedValue,
             isManualCapture: scanMode.isManual,
-            isManualSelect: manualSelect
+            isManualSelect: manualSelect,
+            viewfinderFrame: viewfinderFrame
         )
     }
     
