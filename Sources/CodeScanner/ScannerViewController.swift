@@ -8,6 +8,7 @@
 
 #if os(iOS)
 import AVFoundation
+import CoreFoundation
 import UIKit
 
 @available(macCatalyst 14.0, *)
@@ -33,6 +34,8 @@ extension CodeScannerView {
                 }
             }
         }
+        
+        private var metadataOutput: AVCaptureMetadataOutput?
 
         public init(showViewfinder: Bool = false, parentView: CodeScannerView) {
             self.parentView = parentView
@@ -264,13 +267,13 @@ extension CodeScannerView {
                 didFail(reason: .badInput)
                 return
             }
-            let metadataOutput = AVCaptureMetadataOutput()
+            metadataOutput = AVCaptureMetadataOutput()
 
-            if captureSession!.canAddOutput(metadataOutput) {
-                captureSession!.addOutput(metadataOutput)
+            if captureSession!.canAddOutput(metadataOutput!) {
+                captureSession!.addOutput(metadataOutput!)
                 captureSession!.addOutput(photoOutput)
-                metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-                metadataOutput.metadataObjectTypes = parentView.codeTypes
+                metadataOutput!.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+                metadataOutput!.metadataObjectTypes = parentView.codeTypes
             } else {
                 didFail(reason: .badOutput)
                 return
@@ -373,7 +376,7 @@ extension CodeScannerView {
         }
         #endif
         
-        func updateViewController(isTorchOn: Bool, isGalleryPresented: Bool, isManualCapture: Bool, isManualSelect: Bool) {
+        func updateViewController(isTorchOn: Bool, isGalleryPresented: Bool, isManualCapture: Bool, isManualSelect: Bool, viewfinderFrame: CGRect?) {
             guard let videoCaptureDevice = parentView.videoCaptureDevice ?? fallbackVideoCaptureDevice else {
                 return
             }
@@ -392,6 +395,10 @@ extension CodeScannerView {
             showManualCaptureButton(isManualCapture)
             showManualSelectButton(isManualSelect)
             #endif
+            
+            if let viewfinderFrame {
+                metadataOutput?.rectOfInterest = previewLayer.metadataOutputRectConverted(fromLayerRect: viewfinderFrame)
+            }
         }
         
         public func reset() {
