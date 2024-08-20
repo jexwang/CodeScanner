@@ -394,11 +394,11 @@ extension CodeScannerView {
             #if !targetEnvironment(simulator)
             showManualCaptureButton(isManualCapture)
             showManualSelectButton(isManualSelect)
-            #endif
             
             if let viewfinderFrame {
                 metadataOutput?.rectOfInterest = previewLayer.metadataOutputRectConverted(fromLayerRect: viewfinderFrame)
             }
+            #endif
         }
         
         public func reset() {
