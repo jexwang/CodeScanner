@@ -23,6 +23,13 @@ extension CodeScannerView {
         var didFinishScanning = false
         var lastTime = Date(timeIntervalSince1970: 0)
         private let showViewfinder: Bool
+        #if !targetEnvironment(simulator)
+        private var viewfinderFrame: CGRect? {
+            didSet {
+                setRectOfInterest()
+            }
+        }
+        #endif
         
         let fallbackVideoCaptureDevice = AVCaptureDevice.default(for: .video)
         
@@ -147,6 +154,7 @@ extension CodeScannerView {
 
         override public func viewWillLayoutSubviews() {
             previewLayer?.frame = view.layer.bounds
+            setRectOfInterest()
         }
 
         @objc func updateOrientation() {
@@ -190,6 +198,7 @@ extension CodeScannerView {
             previewLayer.videoGravity = .resizeAspectFill
             view.layer.addSublayer(previewLayer)
             addViewFinder()
+            setRectOfInterest()
 
             reset()
 
@@ -374,6 +383,15 @@ extension CodeScannerView {
             view.bringSubviewToFront(manualSelectButton)
             manualSelectButton.isHidden = !isManualSelect
         }
+        
+        func setRectOfInterest() {
+            if let viewfinderFrame,
+               let rectOfInterest = previewLayer?.metadataOutputRectConverted(fromLayerRect: viewfinderFrame) {
+                metadataOutput?.rectOfInterest = rectOfInterest
+            } else {
+                metadataOutput?.rectOfInterest = .init(x: 0.0, y: 0.0, width: 1.0, height: 1.0)
+            }
+        }
         #endif
         
         func updateViewController(isTorchOn: Bool, isGalleryPresented: Bool, isManualCapture: Bool, isManualSelect: Bool, viewfinderFrame: CGRect?) {
@@ -395,9 +413,7 @@ extension CodeScannerView {
             showManualCaptureButton(isManualCapture)
             showManualSelectButton(isManualSelect)
             
-            if let viewfinderFrame {
-                metadataOutput?.rectOfInterest = previewLayer.metadataOutputRectConverted(fromLayerRect: viewfinderFrame)
-            }
+            self.viewfinderFrame = viewfinderFrame
             #endif
         }
         
